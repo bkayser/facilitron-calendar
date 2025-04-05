@@ -4,11 +4,11 @@
 import axios, { AxiosResponse, AxiosRequestConfig, AxiosHeaders, AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { fetchAndCombineIcalData, ICAL_URLS } from './server';
 import assert from "node:assert";
+import {Reservation, Reservations} from "./reservations";
 
+describe('Facilitron Feeds', () => {
 
-describe('InvokeFacilitronFeeds', () => {
-
-    it('should handle the real feeds', async () => {
+    it('should contain ical events', async () => {
         // This test should be used to test against real feeds, but for demonstration purposes,
 
         const result = await fetchAndCombineIcalData(ICAL_URLS);

@@ -43,8 +43,6 @@ type Feed = {
 
 // --- Helper Function to Fetch and Process iCal Data ---
 export async function fetchAndCombineIcalData(urls: string[]): Promise<string> {
-    console.log(`Workspaceing ${urls.length} iCal feeds...`);
-
     const fetchPromises = urls.map(async (url) => {
         try {
             const response = await axios.get(url, {
@@ -59,7 +57,6 @@ export async function fetchAndCombineIcalData(urls: string[]): Promise<string> {
             });
 
             if (response.status === 200 && typeof response.data === 'string') {
-                console.log(`Successfully fetched: ${url}`);
                 const id = url.match(/reservation\/(.*)$/)?.[1]; // Extract the reservation ID from the URL
                 return <Feed>{id: id, content: response.data};
             } else {
@@ -127,15 +124,12 @@ END:VCALENDAR`;
 
     // Construct the final iCal string
     // Adding common properties. You might want to customize PRODID
-    const finalIcal = `BEGIN:VCALENDAR
+    return `BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//YourCompanyName//NodeIcalAggregator//EN
 CALSCALE:GREGORIAN
 ${combinedEvents.trim()}
 END:VCALENDAR`;
-
-    console.log(`Successfully combined data from ${reservationFeeds.length} feeds.`);
-    return finalIcal;
 }
 
 
