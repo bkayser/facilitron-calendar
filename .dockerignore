@@ -1,0 +1,32 @@
+# .dockerignore
+
+# Node specific
+node_modules
+npm-debug.log
+*.log
+
+# Build artifacts
+dist
+
+# TS specific
+*.tsbuildinfo
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Git specific
+.git
+.gitignore
+
+# Docker specific
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Environment files (should not be baked into image)
+.env*
+
+# IDE specific
+.vscode
+.idea

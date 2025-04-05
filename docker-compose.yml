@@ -1,0 +1,20 @@
+# docker-compose.yml
+
+services:
+  facilitron-calendar:
+    build:
+      context: . # Use the current directory as the build context
+      dockerfile: Dockerfile # Specify the Dockerfile name
+    image: us-west1-docker.pkg.dev/ncsc-395717/facilitron-calendar/reservations-feed:latest
+    container_name: facilitron-app # Optional: Name the running container
+    platform: ${DOCKER_PLATFORM:-linux/amd64}
+    restart: unless-stopped # Optional: Restart policy for local runs
+    environment:
+      # Simulate Cloud Run's PORT injection. The app MUST listen on this port.
+      - PORT=8080
+      # Add any other environment variables your app might need here
+      # - NODE_ENV=development # Uncomment if you want to test development mode specifically
+    ports:
+      # Map host port 8080 to container port 8080 (defined by PORT env var)
+      - 8080:8080
+    
