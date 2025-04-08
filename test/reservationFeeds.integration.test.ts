@@ -2,16 +2,16 @@
 
 // Add InternalAxiosRequestConfig to imports if needed for casting/clarity, though often not required if structured correctly
 import axios, { AxiosResponse, AxiosRequestConfig, AxiosHeaders, AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { fetchAndCombineIcalData, ICAL_URLS } from './server';
+import { fetchAndCombineIcalData } from '../src/server';
 import assert from "node:assert";
-import {Reservation, Reservations} from "./reservations";
+import {Reservation} from "../src/reservations";
 
 describe('Facilitron Feeds', () => {
 
     it('should contain ical events', async () => {
         // This test should be used to test against real feeds, but for demonstration purposes,
 
-        const result = await fetchAndCombineIcalData(ICAL_URLS);
+        const result = await fetchAndCombineIcalData();
 
         assert.ok(result, 'Result should not be null or undefined when using real feeds');
         assert.ok(typeof result === 'string', 'Result should be a string when using real feeds');

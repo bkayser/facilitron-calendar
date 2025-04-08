@@ -1,6 +1,10 @@
+/**
+ * This utility module is responsible for fetching reservations from the Facilitron API.
+ */
 const axios = require('axios');
 const {CookieJar} = require('tough-cookie');
 const {wrapper} = require('axios-cookiejar-support');
+
 type LoginParams = {
     email: string;
     login_client_id: string;
@@ -8,18 +12,25 @@ type LoginParams = {
     password: string;
 };
 
-export type Reservation = {
-    id: string;
-    approved_date: string; // ISO date string
-    created: string; // ISO date string
-    last_date: string; // ISO date string
-    event_name: string; // Name of the event
-    cost: number; // Cost of the reservation, ensure this is a number
+export interface Reservation extends ReservationPayload  {
+    url: string; // Optional: URL to the reservation details, if available
+    icalFeed: string;
 }
 
-export type Reservations = {
-    [key: string]: Reservation; // Maps reservation IDs to Reservation objects
+/** This is the structure of the Reservations returned from the Facilitron API */
+type ReservationPayload = {
+    _id: string; // reservation ID
+    approved_date?: string; // ISO date string
+    created: string; // ISO date string
+    last_date?: string; // ISO date string
+    event_name?: string; // Name of the event
+    renter: { last_name: string };
+    owner: { name: string; };
+    total?: number; // Cost of the reservation, ensure this is a number
 }
+
+export type Reservations = Reservation[];
+
 /**
  * Request Headers
  */
@@ -48,6 +59,15 @@ const headers =
         'sec-ch-ua-platform': '"macOS"'
     }
 
+export async function filterReservations(after?: Date, nameMatch?: string): Promise<Reservations> {
+    const reservations: Reservations = await fetchReservations();
+    return reservations.filter((reservation) => {
+        const matchesDate = after ? new Date(reservation.last_date || '') > new Date(after) : true;
+        const matchesName = nameMatch ? reservation.event_name?.toLowerCase().includes(nameMatch.toLowerCase()) : true;
+        return matchesDate && matchesName;
+    });
+}
+
 export async function fetchReservations(): Promise<Reservations> {
     const loginUrl = 'https://www.facilitron.com/accounts/login';
     const reservationsUrl = 'https://www.facilitron.com/api/reservations/dashboard_myreservations';
@@ -60,26 +80,6 @@ export async function fetchReservations(): Promise<Reservations> {
         headers: headers // Use the defined headers for consistency
     }));
 
-    // Add a request interceptor
-    // client.interceptors.request.use((request: AxiosRequestConfig) => {
-    //     console.log('Starting Request', JSON.stringify({
-    //         url: request.url,
-    //         method: request.method,
-    //         headers: request.headers,
-    //         data: request.data
-    //     }, null, 2));
-    //     return request;
-    // }, (error: Error) => {
-    //     console.error('Request Error', error);
-    //     return Promise.reject(error);
-    // });
-    // client.interceptors.response.use((response: AxiosResponse) => {
-    //     console.log('Response Headers:', JSON.stringify(response.headers, null, 2));
-    //     return response;
-    // }, (error: Error) => {
-    //     console.error('Response Error', error);
-    //     return Promise.reject(error);
-    // });
     if (process.env.FACILITRON_EMAIL === undefined || process.env.FACILITRON_PASSWORD === undefined) {
         throw new Error('Environment variables FACILITRON_EMAIL and/or FACILITRON_PASSWORD are not set. Please set them before running this script.');
     }
@@ -113,20 +113,18 @@ export async function fetchReservations(): Promise<Reservations> {
         console.error('Reservations data is undefined:', JSON.stringify(reservationsResponse.data, null, 2));
         throw new Error('Failed to fetch reservations: No reservations data found in the response');
     }
-    /** Build a map of reservations for quick access */
-    const reservationsArray: Array<Object> = reservationsResponse.data.reservations; // Ensure this is an array
-    const reservations: Reservations = reservationsArray.reduce((map: Reservations, reservationObj: any) => {
-        const reservation = {
-            id: reservationObj._id, // or reservation.id based on actual API response
-            approved_date: reservationObj.approved_date ? new Date(reservationObj.approved_date).toISOString() : '',
-            created: reservationObj.created ? new Date(reservationObj.created).toISOString() : '',
-            last_date: reservationObj.last_date ? new Date(reservationObj.last_date).toISOString() : '',
-            event_name: reservationObj.event_name || '',
-            cost: reservationObj.total || 0, // Ensure this is a number or default to 0
+    if (!Array.isArray(reservationsResponse.data.reservations)) {
+        /**
+         * Handle the case where reservations is not an array
+         */
+        console.error('Reservations data is not an array:', JSON.stringify(reservationsResponse.data.reservations, null, 2));
+        throw new Error('Failed to fetch reservations: Reservations data is not an array');
+    }
+    return reservationsResponse.data.reservations.map((reservationObj: ReservationPayload) => {
+        return { ...reservationObj,
+            // Construct the reservation URL based on the reservation ID or other logic
+            url: `https://www.facilitron.com/reservation/${reservationObj._id}`,
+            icalFeed: `https://www.facilitron.com/icalendar/reservation/${reservationObj._id}`
         } as Reservation;
-        map[reservation.id] = reservation; // Store in the map for quick access
-        return map;
-    }, {} as Reservations); // Provide an initial value for the accumulator
-
-    return reservations;
+    }, {} as Reservations);
 }
