@@ -43,8 +43,8 @@ describe('fetchAndCombineIcalData', () => {
     addMockIcalEvent(mockIcalData1,'reservation1.1','Event 1 from Source 1');
 
     const mockIcalData2 = createMockCalendar();
-    addMockIcalEvent(mockIcalData2,'reservation2.1','Baseball (Milwaukie High)');
-    addMockIcalEvent(mockIcalData2,'reservation2.2','Turf (Rex Putnam)');
+    addMockIcalEvent(mockIcalData2,'reservation2.1','Practice - Baseball (Milwaukie High)');
+    addMockIcalEvent(mockIcalData2,'reservation2.2','Game - Turf (Rex Putnam)');
     addMockIcalEvent(mockIcalData2,'reservation2.3','Event 4 from Source 2');
 
     const mockIcalData3 = createMockCalendar();
@@ -150,7 +150,7 @@ describe('fetchAndCombineIcalData', () => {
         assert.strictEqual(jcal.getAllProperties().length, 8, 'Expected 8 properties in the VCALENDAR object');
         assert.strictEqual(events.length, 2, 'Expected 2 VEVENT components in the VCALENDAR object');
 
-        assert.equal(events[0].getFirstPropertyValue('summary'), 'Lot Whitcomb Elementary School on Soccer practice - Field - Soccer - Southwest');
+        assert.equal(events[0].getFirstPropertyValue('summary'), 'Lot Whitcomb Elementary School on Field - Soccer - Southwest');
 
     });
 

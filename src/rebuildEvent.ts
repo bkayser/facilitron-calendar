@@ -1,5 +1,5 @@
 import ICAL from "ical.js";
-import {Feed} from "./downloadFeeds";
+import { Feed } from './downloadFeeds';
 
 export default function rebuildEvents(calendar: ICAL.Component, feed: Feed): number {
     let count = 0;
@@ -9,16 +9,17 @@ export default function rebuildEvents(calendar: ICAL.Component, feed: Feed): num
         const descriptionProperty = event.getFirstProperty('description') || event.addPropertyWithValue('description', '');
         const locationProperty = event.getFirstProperty('location') || event.addPropertyWithValue('location', '');
 
-        const fieldMatch = summaryProperty?.getFirstValue()?.toString()?.match(/^([^(]*)\(([^)]+)\)/); // Match the content inside parentheses
-        const location = fieldMatch ? fieldMatch[2].trim() : feed.reservation.owner?.name;
-        const fieldName = fieldMatch ? fieldMatch[1].trim() : 'Main';
+        const fieldMatch = summaryProperty?.getFirstValue()?.toString()?.match(/^(.*?) - ([^(]*)\(([^)]+)\)/); // Match the content inside parentheses
+        const location = fieldMatch ? fieldMatch[3].trim() : feed.reservation.owner?.name;
+        const fieldName = fieldMatch ? fieldMatch[2].trim() : 'Main';
+        const eventName = fieldMatch ? fieldMatch[1].trim() : feed.reservation.event_name || 'Soccer';
         const createdDate =
             new Intl.DateTimeFormat('en-US', {
                 month: 'short',
                 day: 'numeric'
             }).format(new Date(feed.reservation.created));
 
-        descriptionProperty.setValue(`${location} - ${fieldName} reserved by ${feed.reservation.renter.last_name} on ${createdDate}\n${feed.reservation.url}`);
+        descriptionProperty.setValue(`${location} - ${fieldName} for ${eventName} reserved by ${feed.reservation.renter.last_name} on ${createdDate}\n${feed.reservation.url}`);
         locationProperty.setValue(location);
         summaryProperty.setValue(location + ' on ' + fieldName);
         event.addPropertyWithValue('URL', feed.reservation.url)

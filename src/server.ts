@@ -1,9 +1,8 @@
 import express, {Request, Response} from 'express';
-import {fetchReservations, Reservations} from './reservations';
-import {downloadFeeds, Feed} from "./downloadFeeds";
-import Property from "ical.js/dist/types/property";
+import {fetchReservations} from './reservations';
 import ICAL from "ical.js";
-import rebuildEvents from "./rebuildEvent"; // Ensure this is the correct path to your reservations module
+import rebuildEvents from "./rebuildEvent";
+import {downloadFeeds} from "./downloadFeeds"; // Ensure this is the correct path to your reservations module
 // --- Configuration ---
 
 
@@ -22,14 +21,14 @@ export async function fetchAndCombineIcalData(): Promise<string> {
     calendar.addPropertyWithValue('X-WR-CALNAME', 'Facilitron Reservations Calendar');
     calendar.addPropertyWithValue('X-WR-CALDESC', 'Combined events across a set of Facilitron reservations');
 
-    const reservations: Reservations = await fetchReservations(); // Ensure we have the latest reservations before fetching iCal data
-    const feeds: Feed[] = await downloadFeeds(reservations); // Use the reservations to fetch feeds
-    feeds.forEach((feed, index) => {
-        if (rebuildEvents(calendar, feed) === 0) {
-            console.warn(`No VEVENT blocks found in content from URL index ${index}. Content might be invalid or empty.`);
+    const reservations = await fetchReservations();
+    const feedPromises = downloadFeeds(reservations).map(async (feedPromise) => {
+        const feed = await feedPromise;
+        if (feed) {
+            rebuildEvents(calendar, feed);
         }
     });
-    // Return the combined iCal data as a string
+    await Promise.all(feedPromises);
     return calendar.toString();
 }
 

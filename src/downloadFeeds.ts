@@ -11,9 +11,9 @@ export type Feed = {
 }
 
 // --- Helper Function to Fetch and Process iCal Data ---
-export async function downloadFeeds(reservations: Reservation[]){
+export function downloadFeeds(reservations: Reservation[]){
 
-    const feedPromises = reservations.map(async (reservation: Reservation ) : Promise<Feed | null> => {
+    return reservations.map(async (reservation: Reservation): Promise<Feed | null> => {
         try {
             const response = await axios.get(reservation.icalFeed, {
                 // Set a reasonable timeout
@@ -43,6 +43,6 @@ export async function downloadFeeds(reservations: Reservation[]){
             return null; // Indicate failure for this URL
         }
     });
-    const results: (Feed | null)[] = await Promise.all(feedPromises);
-    return results.filter((result): result is Feed => result !== null); // Filter out null values to return only successful feeds
+//    const results: (Feed | null)[] = await Promise.all(feedPromises);
+//    return results.filter((result): result is Feed => result !== null); // Filter out null values to return only successful feeds
 }

@@ -1,9 +1,9 @@
-// src/downloadFeeds.unit.test.ts
+// src/combineFeeds.unit.test.ts
 
 import axios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {mocked} from 'jest-mock';
-import {downloadFeeds} from '../src/downloadFeeds';
 import {Reservation} from '../src/reservations';
+import {downloadFeeds} from "../src/downloadFeeds";
 
 jest.mock('axios');
 const mockedAxiosGet = mocked(axios.get);
@@ -93,7 +93,7 @@ END:VCALENDAR`;
         });
 
         const reservations = [mockReservation1, mockReservation2];
-        const feeds = await downloadFeeds(reservations);
+        const feeds = (await Promise.all(downloadFeeds(reservations))).filter(feed => feed !== null);
 
         expect(feeds).toHaveLength(2);
         expect(feeds[0].reservation).toEqual(mockReservation1);
@@ -139,8 +139,7 @@ END:VCALENDAR`;
         });
 
         const reservations = [mockReservation1, mockReservation2];
-        const feeds = await downloadFeeds(reservations);
-
+        const feeds = (await Promise.all(downloadFeeds(reservations))).filter(feed => feed !== null);
         expect(feeds).toHaveLength(1);
         expect(feeds[0].reservation).toEqual(mockReservation1);
     });
