@@ -1,20 +1,21 @@
 import axios, {AxiosError, AxiosHeaders, AxiosResponse, InternalAxiosRequestConfig} from 'axios';
 import {mocked} from 'jest-mock';
-import {fetchAndCombineIcalData} from '../src/server';
+import aggregateReservations from "../src/aggregateReservations";
 import assert from 'node:assert';
-import * as reservationsModule from '../src/reservations';
+import reservationsModule from '../src/reservations';
 import ICAL from "ical.js";
 import {Reservation} from "../src/reservations";
 
 jest.mock('../src/reservations', () => ({
-    fetchReservations: jest.fn()
+    __esModule: true, // Ensures ES module compatibility
+    default: jest.fn(),
+    Reservation: jest.requireActual('../src/reservations').Reservation, // Preserve named exports if needed
 }));
-
 jest.mock('axios');
 
 const mockedAxiosGet = mocked(axios.get);
 
-describe('fetchAndCombineIcalData', () => {
+describe('aggregateReservations', () => {
     const urls = [
         "https://www.facilitron.com/icalendar/reservation/YIUDOAWWY43C",
         "https://www.facilitron.com/icalendar/reservation/MYK4GJWWY43C"
@@ -53,11 +54,11 @@ describe('fetchAndCombineIcalData', () => {
 
     beforeEach(() => {
         mockedAxiosGet.mockReset();
-        (reservationsModule.fetchReservations as jest.Mock).mockClear();
+        (reservationsModule as jest.Mock).mockClear();
     });
 
     it('should combine events from multiple successful fetches', async () => {
-        (reservationsModule.fetchReservations as jest.Mock).mockResolvedValue([
+        (reservationsModule as jest.Mock).mockResolvedValue([
             {
                 _id: 'YIUDOAWWY43C',
                 icalFeed: urls[0],
@@ -106,7 +107,7 @@ describe('fetchAndCombineIcalData', () => {
             return Promise.reject(error);
         }) as jest.Mock);
 
-        const result = await fetchAndCombineIcalData();
+        const result = await aggregateReservations()
         const jcal = ICAL.Component.fromString(result);
         const events = jcal.getAllSubcomponents('vevent');
         assert.strictEqual(jcal.getAllProperties().length, 8, 'Expected 8 properties in the VCALENDAR object');
@@ -121,7 +122,7 @@ describe('fetchAndCombineIcalData', () => {
 
     it('clean up the summary field', async () => {
         const urls = ["https://www.facilitron.com/icalendar/reservation/MYK4GJWWY43C"];
-        (reservationsModule.fetchReservations as jest.Mock).mockResolvedValue([
+        (reservationsModule as jest.Mock).mockResolvedValue([
             {
                 _id: 'YIUDOAWWY43C',
                 icalFeed: urls[0],
@@ -144,7 +145,7 @@ describe('fetchAndCombineIcalData', () => {
             return Promise.resolve(response);
         }) as jest.Mock);
 
-        const result = await fetchAndCombineIcalData();
+        const result = await aggregateReservations();
         const jcal = ICAL.Component.fromString(result);
         const events = jcal.getAllSubcomponents('vevent');
         assert.strictEqual(jcal.getAllProperties().length, 8, 'Expected 8 properties in the VCALENDAR object');
@@ -186,7 +187,7 @@ describe('fetchAndCombineIcalData', () => {
             return Promise.reject(error);
         }) as jest.Mock);
 
-        const result = await fetchAndCombineIcalData();
+        const result = await aggregateReservations();
         // ... assertions ...
     });
 
@@ -219,7 +220,7 @@ describe('fetchAndCombineIcalData', () => {
             return Promise.reject(error);
         }) as jest.Mock);
 
-        const result = await fetchAndCombineIcalData();
+        const result = await aggregateReservations();
         // ... assertions ...
     });
 
@@ -251,7 +252,7 @@ describe('fetchAndCombineIcalData', () => {
             return Promise.reject(error);
         }) as jest.Mock);
 
-        const result = await fetchAndCombineIcalData();
+        const result = await aggregateReservations();
         // ... assertions ...
     });
 

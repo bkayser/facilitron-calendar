@@ -59,16 +59,7 @@ const headers =
         'sec-ch-ua-platform': '"macOS"'
     }
 
-export async function filterReservations(after?: Date, nameMatch?: string): Promise<Reservations> {
-    const reservations: Reservations = await fetchReservations();
-    return reservations.filter((reservation) => {
-        const matchesDate = after ? new Date(reservation.last_date || '') > new Date(after) : true;
-        const matchesName = nameMatch ? reservation.event_name?.toLowerCase().includes(nameMatch.toLowerCase()) : true;
-        return matchesDate && matchesName;
-    });
-}
-
-export async function fetchReservations(): Promise<Reservations> {
+export default async function fetchReservations(): Promise<Reservations> {
     const loginUrl = 'https://www.facilitron.com/accounts/login';
     const reservationsUrl = 'https://www.facilitron.com/api/reservations/dashboard_myreservations';
 

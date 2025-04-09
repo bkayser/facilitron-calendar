@@ -3,7 +3,7 @@
 import axios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {mocked} from 'jest-mock';
 import {Reservation} from '../src/reservations';
-import {downloadFeeds} from "../src/downloadFeeds";
+import downloadFeeds from "../src/downloadFeeds";
 
 jest.mock('axios');
 const mockedAxiosGet = mocked(axios.get);

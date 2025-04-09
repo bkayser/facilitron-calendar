@@ -1,16 +1,15 @@
 // src/fetchAndCombine.unit.test.ts
 
 // Add InternalAxiosRequestConfig to imports if needed for casting/clarity, though often not required if structured correctly
-import axios, { AxiosResponse, AxiosRequestConfig, AxiosHeaders, AxiosError, InternalAxiosRequestConfig } from 'axios';
-import { fetchAndCombineIcalData } from '../src/server';
+import aggregateReservations from "../src/aggregateReservations";
 import assert from "node:assert";
-import {Reservation} from "../src/reservations";
-import * as reservationsModule from "../src/reservations";
-import {mocked} from "jest-mock";
+import reservationsModule, {Reservation} from "../src/reservations";
 import ICAL from "ical.js";
 
 jest.mock('../src/reservations', () => ({
-    fetchReservations: jest.fn()
+    __esModule: true, // Ensures ES module compatibility
+    default: jest.fn(),
+    Reservation: jest.requireActual('../src/reservations').Reservation, // Preserve named exports if needed
 }));
 
 describe('Facilitron Feeds', () => {
@@ -20,7 +19,7 @@ describe('Facilitron Feeds', () => {
     ];
     it('should contain ical events', async () => {
         // This test should be used to test against real feeds, but for demonstration purposes,
-        (reservationsModule.fetchReservations as jest.Mock).mockResolvedValue([
+        (reservationsModule as jest.Mock).mockResolvedValue([
             {
                 _id: 'HRK7KAAUHE9H',
                 icalFeed: urls[0],
@@ -39,7 +38,7 @@ describe('Facilitron Feeds', () => {
             }
         ] as Reservation[]);
 
-        const result = await fetchAndCombineIcalData();
+        const result = await aggregateReservations();
 
         const jcal = ICAL.Component.fromString(result);
         const events = jcal.getAllSubcomponents('vevent');

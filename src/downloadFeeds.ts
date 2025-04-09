@@ -11,7 +11,7 @@ export type Feed = {
 }
 
 // --- Helper Function to Fetch and Process iCal Data ---
-export function downloadFeeds(reservations: Reservation[]){
+export default function downloadFeeds(reservations: Reservation[]){
 
     return reservations.map(async (reservation: Reservation): Promise<Feed | null> => {
         try {

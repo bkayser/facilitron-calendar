@@ -2,12 +2,11 @@
 
 // Add InternalAxiosRequestConfig to imports if needed for casting/clarity, though often not required if structured correctly
 import assert from "node:assert";
-import {Reservation} from "../src/reservations";
+import fetchReservations, {Reservation} from "../src/reservations";
 
 describe ('Reservations', () => {
     it('should be accurately scraped from Facilitron', async () => {
         // This test is to ensure that the fetchReservations function works correctly
-        const { fetchReservations } = require('../src/reservations');
         const reservations: Reservation[] = await fetchReservations();
         const keys: String[] = Object.keys(reservations);
         assert.ok(keys.length >= 50, 'Reservations should be 50 or more');

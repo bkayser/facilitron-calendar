@@ -1,48 +1,8 @@
 import express, {Request, Response} from 'express';
-import {fetchReservations} from './reservations';
-import ICAL from "ical.js";
-import rebuildEvents from "./rebuildEvent";
-import {downloadFeeds} from "./downloadFeeds"; // Ensure this is the correct path to your reservations module
-// --- Configuration ---
-
+import aggregateReservations from "./aggregateReservations"; // Ensure this is the correct path to your reservations module
 
 const PORT: number = parseInt(process.env.PORT || '8080', 10);
 const HOST: string = process.env.HOST || '0.0.0.0'; // Listen on all available interfaces
-
-// --- Helper Function to Fetch and Process iCal Data ---
-export async function fetchAndCombineIcalData(): Promise<string> {
-    const calendar = new ICAL.Component('VCALENDAR');
-    calendar.addPropertyWithValue('VERSION', '2.0');
-    calendar.addPropertyWithValue('CALSCALE', 'GREGORIAN');
-    calendar.addPropertyWithValue('PRODID', '-//NodeIcalAggregator//EN');
-    calendar.addPropertyWithValue('METHOD', 'PUBLISH');
-    calendar.addPropertyWithValue('TIMEZONE-ID', 'America/Los_Angeles');
-    calendar.addPropertyWithValue('X-WR-TIMEZONE', 'America/Los_Angeles');
-    calendar.addPropertyWithValue('X-WR-CALNAME', 'Facilitron Reservations Calendar');
-    calendar.addPropertyWithValue('X-WR-CALDESC', 'Combined events across a set of Facilitron reservations');
-
-    const reservations = await fetchReservations();
-    reservations.filter(reservation => {
-        reservation.last_date
-    })
-    const feedPromises = downloadFeeds(reservations).map(async (feedPromise) => {
-        const feed = await feedPromise;
-        return feed && rebuildEvents(feed);
-    });
-    const feedEvents = await Promise.all(feedPromises);
-    /* Combine all the event arrays stored in the completed feedPromises into a single array */
-    const allEvents = feedEvents.filter(feed => feed !== null).flat();
-    const sortedEvents = allEvents.sort((a, b) => {
-        const aStart = a.getFirstPropertyValue('dtstart') as ICAL.Time;
-        const bStart = b.getFirstPropertyValue('dtstart') as ICAL.Time;
-        return aStart.toUnixTime() - bStart.toUnixTime();
-    })
-    for (const event of sortedEvents) {
-        calendar.addSubcomponent(event);
-    }
-    return calendar.toString();
-}
-
 
 // --- Express Application Setup ---
 const app = express();
@@ -56,8 +16,18 @@ app.use((req, res, next) => {
 // --- Route Definition ---
 app.get('/reservations.ical', async (req: Request, res: Response) => {
     try {
-        const combinedIcal = await fetchAndCombineIcalData();
 
+        const { startDateParam, locationsParam } = req.query;
+
+        const defaultDate = new Date();
+        defaultDate.setDate(defaultDate.getDate() - 90);
+        const startDate = startDateParam ? new Date(startDateParam as string) : defaultDate;
+        const locations: string[] = locationsParam
+            ? (Array.isArray(locationsParam)
+                ? locationsParam.map(String)
+                : [String(locationsParam)])
+            : [];
+        const combinedIcal = await aggregateReservations(startDate, locations);
         res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
         res.setHeader('Content-Disposition', 'attachment; filename="reservations.ics"'); // Suggest filename
         // Prevent caching to ensure clients always get fresh data
