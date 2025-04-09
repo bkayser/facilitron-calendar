@@ -20,9 +20,9 @@ export interface Reservation extends ReservationPayload  {
 /** This is the structure of the Reservations returned from the Facilitron API */
 type ReservationPayload = {
     _id: string; // reservation ID
-    approved_date?: string; // ISO date string
-    created: string; // ISO date string
-    last_date?: string; // ISO date string
+    approved_date: Date; // ISO date string
+    created: Date; // ISO date string
+    last_date: Date;
     event_name?: string; // Name of the event
     renter: { last_name: string };
     owner: { name: string; };
@@ -123,6 +123,9 @@ export async function fetchReservations(): Promise<Reservations> {
     return reservationsResponse.data.reservations.map((reservationObj: ReservationPayload) => {
         return { ...reservationObj,
             // Construct the reservation URL based on the reservation ID or other logic
+            approved_date: new Date(reservationObj.approved_date),
+            created: new Date(reservationObj.created),
+            last_date: new Date(reservationObj.last_date),
             url: `https://www.facilitron.com/reservation/${reservationObj._id}`,
             icalFeed: `https://www.facilitron.com/icalendar/reservation/${reservationObj._id}`
         } as Reservation;

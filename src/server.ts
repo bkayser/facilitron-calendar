@@ -22,13 +22,24 @@ export async function fetchAndCombineIcalData(): Promise<string> {
     calendar.addPropertyWithValue('X-WR-CALDESC', 'Combined events across a set of Facilitron reservations');
 
     const reservations = await fetchReservations();
+    reservations.filter(reservation => {
+        reservation.last_date
+    })
     const feedPromises = downloadFeeds(reservations).map(async (feedPromise) => {
         const feed = await feedPromise;
-        if (feed) {
-            rebuildEvents(calendar, feed);
-        }
+        return feed && rebuildEvents(feed);
     });
-    await Promise.all(feedPromises);
+    const feedEvents = await Promise.all(feedPromises);
+    /* Combine all the event arrays stored in the completed feedPromises into a single array */
+    const allEvents = feedEvents.filter(feed => feed !== null).flat();
+    const sortedEvents = allEvents.sort((a, b) => {
+        const aStart = a.getFirstPropertyValue('dtstart') as ICAL.Time;
+        const bStart = b.getFirstPropertyValue('dtstart') as ICAL.Time;
+        return aStart.toUnixTime() - bStart.toUnixTime();
+    })
+    for (const event of sortedEvents) {
+        calendar.addSubcomponent(event);
+    }
     return calendar.toString();
 }
 

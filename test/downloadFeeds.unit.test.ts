@@ -11,9 +11,9 @@ const mockedAxiosGet = mocked(axios.get);
 describe('downloadFeeds', () => {
     const mockReservation1: Reservation = {
         _id: '1',
-        approved_date: '2023-01-01',
-        created: '2021-06-07T15:57:56.312Z',
-        last_date: '2021-06-07T15:57:56.312Z',
+        approved_date: new Date('2023-01-01'),
+        created: new Date('2021-06-07T15:57:56.312Z'),
+        last_date: new Date('2021-06-07T15:57:56.312Z'),
         event_name: 'Event 1',
         total: 100,
         renter: { last_name: 'Doe' },
@@ -24,9 +24,9 @@ describe('downloadFeeds', () => {
 
     const mockReservation2: Reservation = {
         _id: '2',
-        approved_date: '2023-01-02',
-        created: '2021-06-07T15:57:56.312Z',
-        last_date: '22021-06-07T15:57:56.312Z',
+        approved_date: new Date('2023-01-02'),
+        created: new Date('2021-06-07T15:57:56.312Z'),
+        last_date: new Date('2021-06-07T15:57:56.312Z'),
         event_name: 'Event 2',
         renter: { last_name: 'Doe' },
         owner: { name: 'NCSD' },

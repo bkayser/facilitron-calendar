@@ -18,13 +18,23 @@ From each machine you intend to use for pushing (builds) or pulling (deployments
 
 1. Build your container image: If you haven't already, build your Docker image and push it to a container registry.
 
-2. Deploy with gcloud: Use the following command:
-
+2. Create secrets files that are not stored in git:
+   * `facilitron-email.txt`: Your email address for logging into Facilitron.
+   * `facilitron-password.txt`: Your password for logging into Facilitron.
+   * `.env`: Your environment variables for the container with both `FACILITRON_EMAIL` and `FACILITRON_PASSWORD` set to the values in the secrets files.
+3. Add your secrets: Use the following commands to add your secrets:
+```
+gcloud secrets create FACILITRON_EMAIL --data-file=facilitron-email.txt
+gcloud secrets create FACILITRON_PASSWORD --data-file=facilitron-password.txt
+``` 
+Replace `facilitron-email.txt` and `facilitron-password.txt` with the paths to your actual secret files.
+4. Deploy your container: Use the following command to deploy your container:
 ```
 gcloud run deploy ncsc-395717 \
     --image us-west1-docker.pkg.dev/ncsc-395717/facilitron-calendar/reservations-feed:latest \
     --region us-west1 \
-    --allow-unauthenticated
+    --allow-unauthenticated \
+    --set-secrets=FACILITRON_EMAIL=projects/<PROJECT_ID>/secrets/FACILITRON_EMAIL:latest,FACILITRON_PASSWORD=projects/<PROJECT_ID>/secrets/FACILITRON_PASSWORD:latest
 ```
 
 `--allow-unauthenticated` makes your service publicly accessible. If you need authentication, omit this flag.

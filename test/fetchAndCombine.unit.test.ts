@@ -61,15 +61,15 @@ describe('fetchAndCombineIcalData', () => {
             {
                 _id: 'YIUDOAWWY43C',
                 icalFeed: urls[0],
-                created: '2021-06-07T15:57:56.312Z',
-                owner: { name: 'NCSD'},
+                created: new Date('2021-06-07T15:57:56.312Z'),
+                owner: { name: 'Milwaukie High School'},
                 renter: { last_name: 'Doe' }
             },
             {
                 _id: 'MYK4GJWWY43C',
                 icalFeed: urls[1],
-                created: '2021-06-07T15:57:56.312Z',
-                owner: { name: 'NCSD'},
+                created: new Date('2021-06-07T15:57:56.312Z'),
+                owner: { name: 'Rex Putnam High School'},
                 renter: { last_name: 'Smith' }
             }
         ] as Reservation[]);
@@ -112,10 +112,10 @@ describe('fetchAndCombineIcalData', () => {
         assert.strictEqual(jcal.getAllProperties().length, 8, 'Expected 8 properties in the VCALENDAR object');
         assert.strictEqual(events.length, 4, 'Expected 4 VEVENT components in the VCALENDAR object');
 
-        assert.equal(events[0].getFirstPropertyValue('summary'), 'NCSD on Main');
-        assert.equal(events[1].getFirstPropertyValue('summary'), 'Milwaukie High on Baseball');
-        assert.equal(events[2].getFirstPropertyValue('summary'), 'Rex Putnam on Turf');
-        assert.equal(events[3].getFirstPropertyValue('summary'), 'NCSD on Main');
+        assert.equal(events[0].getFirstPropertyValue('summary'), 'Milwaukie High School on Main');
+        assert.equal(events[1].getFirstPropertyValue('summary'), "Rex Putnam High School on Baseball");
+        assert.equal(events[2].getFirstPropertyValue('summary'), "Rex Putnam High School on Turf");
+        assert.equal(events[3].getFirstPropertyValue('summary'), 'Rex Putnam High School on Main');
 
     });
 
@@ -125,8 +125,8 @@ describe('fetchAndCombineIcalData', () => {
             {
                 _id: 'YIUDOAWWY43C',
                 icalFeed: urls[0],
-                created: '2021-06-07T15:57:56.312Z',
-                owner: { name: 'NCSD'},
+                created: new Date('2021-06-07T15:57:56.312Z'),
+                owner: { name: 'Lot Whitcomb Elementary School'},
                 renter: { last_name: 'Doe' }
             }
         ]);
