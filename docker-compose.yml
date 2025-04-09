@@ -9,6 +9,8 @@ services:
     container_name: facilitron-app # Optional: Name the running container
     platform: ${DOCKER_PLATFORM:-linux/amd64}
     restart: unless-stopped # Optional: Restart policy for local runs
+    env_file:
+      - .env
     environment:
       # Simulate Cloud Run's PORT injection. The app MUST listen on this port.
       - PORT=8080
