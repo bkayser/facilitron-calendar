@@ -52,6 +52,5 @@ if (require.main === module) {
     app.listen(PORT, HOST, () => {
         console.log(`🚀 iCal Aggregator Server version 1 listening on http://${HOST}:${PORT}`);
         console.log(`📅 Feed available at http://${HOST}:${PORT}/reservations.ical`);
-        console.log(`Using help "${process.env.FACILITRON_EMAIL}" motto "${process.env.FACILITRON_PASSWORD}"`);
     });
 }
