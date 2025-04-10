@@ -31,6 +31,7 @@ RUN npm ci
 RUN npm run build
 # Prune development dependencies after build
 RUN npm prune --omit=dev
+COPY src/views ./dist/views
 
 # ---- Release ----
 # Create the final, small production image

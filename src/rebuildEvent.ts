@@ -40,9 +40,9 @@ export default function rebuildEvents(feed: Feed): ICAL.Component[] {
                 day: 'numeric'
             }).format(feed.reservation.created);
 
-        descriptionProperty.setValue(`${location} - ${fieldName} for ${eventName} reserved by ${feed.reservation.renter.last_name} on ${createdDate}\n${feed.reservation.url}`);
+        descriptionProperty.setValue(`${eventName} at ${location} (${fieldName}) reserved by ${feed.reservation.renter.last_name} on ${createdDate}\n${feed.reservation.url}`);
         locationProperty.setValue(location);
-        summaryProperty.setValue(location + ' on ' + fieldName);
+        summaryProperty.setValue(location);
         event.addPropertyWithValue('URL', feed.reservation.url);
         // Convert start and end times to local timezone
         const startTimeLocal = (event.getFirstPropertyValue('dtstart') as ICAL.Time);

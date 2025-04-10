@@ -115,10 +115,10 @@ describe('aggregateReservations', () => {
         assert.strictEqual(jcal.getAllProperties().length, 8, 'Expected 8 properties in the VCALENDAR object');
         assert.strictEqual(events.length, 4, 'Expected 4 VEVENT components in the VCALENDAR object');
 
-        assert.equal(events[0].getFirstPropertyValue('summary'), 'Milwaukie High School on Main');
-        assert.equal(events[1].getFirstPropertyValue('summary'), "Rex Putnam High School on Baseball");
-        assert.equal(events[2].getFirstPropertyValue('summary'), "Rex Putnam High School on Turf");
-        assert.equal(events[3].getFirstPropertyValue('summary'), 'Rex Putnam High School on Main');
+        assert.equal(events[0].getFirstPropertyValue('summary'), 'Milwaukie High School');
+        assert.equal(events[1].getFirstPropertyValue('summary'), "Rex Putnam High School");
+        assert.equal(events[2].getFirstPropertyValue('summary'), "Rex Putnam High School");
+        assert.equal(events[3].getFirstPropertyValue('summary'), 'Rex Putnam High School');
 
     });
 
@@ -154,7 +154,7 @@ describe('aggregateReservations', () => {
         assert.strictEqual(jcal.getAllProperties().length, 8, 'Expected 8 properties in the VCALENDAR object');
         assert.strictEqual(events.length, 2, 'Expected 2 VEVENT components in the VCALENDAR object');
 
-        assert.equal(events[0].getFirstPropertyValue('summary'), 'Lot Whitcomb Elementary School on Field - Soccer - Southwest');
+        assert.equal(events[0].getFirstPropertyValue('summary'), 'Lot Whitcomb Elementary School');
 
     });
 

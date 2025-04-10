@@ -45,18 +45,18 @@ describe('Facilitron Feeds', () => {
         const jcal = ICAL.Component.fromString(result);
         const events = jcal.getAllSubcomponents('vevent');
         assert.strictEqual(events.length, 17, 'Should contain 17 VEVENT occurrences');
-        assert.equal(events[0].getFirstPropertyValue('summary'), 'Rex Putnam High School on Field - Football');
-        assert.equal(events[1].getFirstPropertyValue('summary'), 'Rex Putnam High School on Field - Football');
-        assert.equal(events[16].getFirstPropertyValue('summary'), 'Milwaukie High School on Lake Road Varsity Turf Baseball Field/Soccer Field');
+        assert.equal(events[0].getFirstPropertyValue('summary'), 'Rex Putnam High School');
+        assert.equal(events[1].getFirstPropertyValue('summary'), 'Rex Putnam High School');
+        assert.equal(events[16].getFirstPropertyValue('summary'), 'Milwaukie High School');
 
         assert.equal(events[0].getFirstPropertyValue('description'),
-            'Rex Putnam High School - Field - Football for Soccer reserved by Smith on Jun 7\n'+
+            'Soccer at Rex Putnam High School (Field - Football) reserved by Smith on Jun 7\n'+
             'https://www.facilitron.com/icalendar/reservation/66EQ84QE3QU4');
         assert.equal(events[1].getFirstPropertyValue('description'),
-            'Rex Putnam High School - Field - Football for Soccer reserved by Smith on Jun 7\n' +
+            'Soccer at Rex Putnam High School (Field - Football) reserved by Smith on Jun 7\n' +
             'https://www.facilitron.com/icalendar/reservation/66EQ84QE3QU4');
         assert.equal(events[16].getFirstPropertyValue('description'),
-            "Milwaukie High School - Lake Road Varsity Turf Baseball Field/Soccer Field for Soccer reserved by Doe on Jun 7\n" +
+            "Soccer at Milwaukie High School (Lake Road Varsity Turf Baseball Field/Soccer Field) reserved by Doe on Jun 7\n" +
             "https://www.facilitron.com/icalendar/reservation/HRK7KAAUHE9H");
         assert.equal(events[0].getFirstPropertyValue('dtstart')?.toString(), '2025-01-25T09:00:00');
         assert.equal(events[1].getFirstPropertyValue('dtstart')?.toString(), '2025-01-26T09:00:00');

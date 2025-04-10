@@ -117,7 +117,7 @@ export default async function fetchReservations(): Promise<Reservations> {
             approved_date: new Date(reservationObj.approved_date),
             created: new Date(reservationObj.created),
             last_date: new Date(reservationObj.last_date),
-            url: `https://www.facilitron.com/reservation/${reservationObj._id}`,
+            url: `https://www.facilitron.com/dashboard/reservation/${reservationObj._id.toUpperCase()}`,
             icalFeed: `https://www.facilitron.com/icalendar/reservation/${reservationObj._id}`
         } as Reservation;
     }, {} as Reservations);
