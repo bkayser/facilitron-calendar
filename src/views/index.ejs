@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Subscription URL Generator</title>
+<style>
+    body { font-family: sans-serif; padding: 20px; }
+    label { display: block; margin-top: 10px; margin-bottom: 5px; font-weight: bold; }
+    select[multiple] { min-height: 180px; width: 200px; }
+    button { margin-top: 15px; padding: 8px 15px; cursor: pointer; }
+    #resultArea { margin-top: 25px; padding: 15px; background-color: #f0f0f0; border: 1px solid #ccc; border-radius: 5px; }
+    #resultArea p { margin: 0 0 10px 0; font-weight: bold; }
+    #generatedUrlInput { width: 90%; padding: 5px; margin-right: 5px; }
+</style>
+</head>
+<body>
+
+<h1>Generate Calendar Subscription URL for NCSC Facilitron Reservations</h1>
+<p>Enter the parameters to configure a calendar feed.  If no locations are selected all reservations will be rendered.</p>
+
+<form id="optionsForm">
+    <div>
+        <label for="startDate">Start Date:</label>
+        <input type="date" id="startDate" name="start_date" value="<%= defaultDate %>" required>
+    </div>
+
+    <div>
+        <label for="locationSelect">Locations:</label>
+        <select id="locationSelect" name="location" multiple >
+            <% locations.forEach(location => { %>
+            <option value="<%= location %>"><%= location %></option>
+            <% }); %>
+        </select>
+        <p><small>(Hold Ctrl/Cmd to select multiple)</small></p>
+    </div>
+
+    <button type="submit" id="generateBtn">Generate URL</button>
+</form>
+
+<div id="resultArea" style="display: none;">
+</div>
+
+<script>
+    const form = document.getElementById('optionsForm');
+    const startDateInput = document.getElementById('startDate');
+    const locationSelect = document.getElementById('locationSelect');
+    const resultArea = document.getElementById('resultArea');
+
+    form.addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent traditional form submission
+
+    const selectedDate = startDateInput.value;
+    const selectedOptions = Array.from(locationSelect.selectedOptions);
+    const selectedLocations = selectedOptions.map(option => option.value);
+
+    if (!selectedDate) {
+    alert('Please select a start date.');
+    return;
+}
+
+    // Build the URL
+    const params = new URLSearchParams();
+    params.append('start_date', selectedDate);
+    selectedLocations.forEach(loc => {
+    params.append('location', loc);
+});
+
+    const queryString = params.toString();
+    const baseUrl = '/reservations.ical';
+    const currentOrigin = window.location.origin; // Gets http://hostname:port
+    const fullUrl = `${currentOrigin}${baseUrl}?${queryString}`;
+
+    // Display the URL and Copy button
+    resultArea.innerHTML = `
+                <p>Your subscription URL:</p>
+                <input type="text" value="${fullUrl}" readonly size="60" id="generatedUrlInput">
+                <button id="copyBtn">Copy</button>
+            `;
+    resultArea.style.display = 'block'; // Show the results area
+
+    // Add functionality to the copy button
+    const copyBtn = document.getElementById('copyBtn');
+    const urlInput = document.getElementById('generatedUrlInput');
+    copyBtn.addEventListener('click', () => {
+    urlInput.select(); // Select the text field content
+    urlInput.setSelectionRange(0, 99999); // For mobile devices
+
+    navigator.clipboard.writeText(fullUrl).then(() => {
+    // Optional: Give feedback
+    const originalText = copyBtn.textContent;
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => { copyBtn.textContent = originalText; }, 1500);
+}).catch(err => {
+    console.error('Failed to copy URL: ', err);
+    alert('Failed to copy URL. Please copy it manually.');
+});
+});
+});
+</script>
+
+</body>
+</html>

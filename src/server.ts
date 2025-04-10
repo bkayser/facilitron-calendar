@@ -1,11 +1,15 @@
 import express, {Request, Response} from 'express';
 import aggregateReservations from "./aggregateReservations"; // Ensure this is the correct path to your reservations module
-
+import { subDays, format } from 'date-fns'; // For easy date calculation
+import path from 'path';
 const PORT: number = parseInt(process.env.PORT || '8080', 10);
 const HOST: string = process.env.HOST || '0.0.0.0'; // Listen on all available interfaces
 
 // --- Express Application Setup ---
 const app = express();
+// --- Configuration ---
+app.set('view engine', 'ejs'); // Set EJS as the templating engine
+app.set('views', path.join(__dirname, 'views')); // Tell Express where to find view files
 
 // Middleware for logging requests
 app.use((req, res, next) => {
@@ -42,10 +46,33 @@ app.get('/reservations.ical', async (req: Request, res: Response) => {
     }
 });
 
-// --- Default Route for Root Path ---
-app.get('/', (req: Request, res: Response) => {
-    res.status(200).send('iCal Aggregator is running. Access the feed at /reservations.ical');
+app.get('/', (req, res) => {
+    // Calculate default date (30 days ago)
+    const today = new Date();
+    const defaultDateRaw = subDays(today, 30);
+    // Format as YYYY-MM-DD for the HTML date input value
+    const defaultDateValue = format(defaultDateRaw, 'yyyy-MM-dd');
+    const locations = [
+        'Rex Putnam',
+        'Lot Whitcomb',
+        'Milwaukie',
+        'Schellenberg',
+        'Oak Grove',
+        'Ann-Toni',
+        'Clackamas',
+        'Nelson',
+        'Linwood',
+        'View Acres',
+        'Elementary',
+        'High School',
+        'Middle School'
+        ];
+    res.render('index', {
+        defaultDate: defaultDateValue, // Pass default date to the template
+        locations: locations            // Pass locations list to the template
+    });
 });
+
 // Important: Check if the module is run directly (node server.js)
 // This prevents the server from starting automatically when imported by tests.
 if (require.main === module) {
