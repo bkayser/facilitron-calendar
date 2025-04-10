@@ -4,6 +4,7 @@ import axios, {AxiosError, InternalAxiosRequestConfig} from 'axios';
 import {mocked} from 'jest-mock';
 import {Reservation} from '../src/reservations';
 import downloadFeeds from "../src/downloadFeeds";
+import ICAL from "ical.js";
 
 jest.mock('axios');
 const mockedAxiosGet = mocked(axios.get);
@@ -63,6 +64,42 @@ END:VCALENDAR`;
         mockedAxiosGet.mockClear();
     });
 
+    it ('should convert timezones', () => {
+        // Define the time zone data for 'America/Los_Angeles'
+        const pacificTimeZoneData = `
+BEGIN:VTIMEZONE
+TZID:America/Los_Angeles
+BEGIN:STANDARD
+DTSTART:18831118T120702
+TZOFFSETFROM:-0752
+TZOFFSETTO:-0800
+TZNAME:PST
+END:STANDARD
+BEGIN:DAYLIGHT
+DTSTART:19180331T020000
+TZOFFSETFROM:-0800
+TZOFFSETTO:-0700
+TZNAME:PDT
+END:DAYLIGHT
+END:VTIMEZONE
+`;
+
+// Create a date to convert
+        const date = new Date('2023-10-01T01:00:00Z');
+
+// Create an ICAL.Time object
+        const icalTime = ICAL.Time.fromJSDate(date, true); // true indicates UTC
+
+// Parse the time zone data and create an ICAL.Timezone object
+        const pacificTimeZoneComponent = ICAL.Component.fromString(pacificTimeZoneData);
+        const pacificTimeZone = ICAL.Timezone.fromData(pacificTimeZoneComponent);
+
+// Convert the time to the Pacific Time Zone
+        const convertedTime = icalTime.convertToZone(pacificTimeZone);
+
+        expect(convertedTime.toString()).toEqual('2023-09-30T18:00:00');
+        console.log(convertedTime.toICALString());
+    })
     it('should download and return feeds for valid reservations', async () => {
         mockedAxiosGet.mockImplementation(async (url, config?): Promise<any> => {
             const requestHeaders = {'Accept': 'text/calendar'};

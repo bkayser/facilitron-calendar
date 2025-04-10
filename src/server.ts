@@ -16,8 +16,7 @@ app.use((req, res, next) => {
 // --- Route Definition ---
 app.get('/reservations.ical', async (req: Request, res: Response) => {
     try {
-
-        const { startDateParam, locationsParam } = req.query;
+        const { start_date:startDateParam, location:locationsParam } = req.query;
 
         const defaultDate = new Date();
         defaultDate.setDate(defaultDate.getDate() - 90);
@@ -51,7 +50,8 @@ app.get('/', (req: Request, res: Response) => {
 // This prevents the server from starting automatically when imported by tests.
 if (require.main === module) {
     app.listen(PORT, HOST, () => {
-        console.log(`🚀 iCal Aggregator Server listening on http://${HOST}:${PORT}`);
+        console.log(`🚀 iCal Aggregator Server version 1 listening on http://${HOST}:${PORT}`);
         console.log(`📅 Feed available at http://${HOST}:${PORT}/reservations.ical`);
+        console.log(`Using help "${process.env.FACILITRON_EMAIL}" motto "${process.env.FACILITRON_PASSWORD}"`);
     });
 }

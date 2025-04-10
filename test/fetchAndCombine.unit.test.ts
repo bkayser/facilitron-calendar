@@ -64,6 +64,7 @@ describe('aggregateReservations', () => {
                 icalFeed: urls[0],
                 created: new Date('2021-06-07T15:57:56.312Z'),
                 owner: { name: 'Milwaukie High School'},
+                last_date: new Date('2028-03-20T01:00:00Z'),
                 renter: { last_name: 'Doe' }
             },
             {
@@ -71,6 +72,7 @@ describe('aggregateReservations', () => {
                 icalFeed: urls[1],
                 created: new Date('2021-06-07T15:57:56.312Z'),
                 owner: { name: 'Rex Putnam High School'},
+                last_date: new Date('2028-03-20T01:00:00Z'),
                 renter: { last_name: 'Smith' }
             }
         ] as Reservation[]);
@@ -107,7 +109,7 @@ describe('aggregateReservations', () => {
             return Promise.reject(error);
         }) as jest.Mock);
 
-        const result = await aggregateReservations()
+        const result = await aggregateReservations(new Date('2025-01-01T00:00:00Z'));
         const jcal = ICAL.Component.fromString(result);
         const events = jcal.getAllSubcomponents('vevent');
         assert.strictEqual(jcal.getAllProperties().length, 8, 'Expected 8 properties in the VCALENDAR object');
@@ -127,6 +129,7 @@ describe('aggregateReservations', () => {
                 _id: 'YIUDOAWWY43C',
                 icalFeed: urls[0],
                 created: new Date('2021-06-07T15:57:56.312Z'),
+                last_date: new Date('2028-03-20T01:00:00Z'),
                 owner: { name: 'Lot Whitcomb Elementary School'},
                 renter: { last_name: 'Doe' }
             }
@@ -145,7 +148,7 @@ describe('aggregateReservations', () => {
             return Promise.resolve(response);
         }) as jest.Mock);
 
-        const result = await aggregateReservations();
+        const result = await aggregateReservations(new Date('2025-01-01T00:00:00Z'));
         const jcal = ICAL.Component.fromString(result);
         const events = jcal.getAllSubcomponents('vevent');
         assert.strictEqual(jcal.getAllProperties().length, 8, 'Expected 8 properties in the VCALENDAR object');

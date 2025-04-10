@@ -26,6 +26,7 @@ describe('Facilitron Feeds', () => {
                 created: new Date('2021-06-07T15:57:56.312Z'),
                 owner: { name: 'Milwaukie High School'},
                 renter: { last_name: 'Doe' },
+                last_date: new Date('2028-03-20T01:00:00Z'),
                 url: 'https://www.facilitron.com/icalendar/reservation/HRK7KAAUHE9H'
             },
             {
@@ -34,11 +35,12 @@ describe('Facilitron Feeds', () => {
                 created: new Date('2021-06-07T15:57:56.312Z'),
                 owner: { name: 'Rex Putnam High School'},
                 renter: { last_name: 'Smith' },
+                last_date: new Date('2028-04-20T01:00:00Z'),
                 url: 'https://www.facilitron.com/icalendar/reservation/66EQ84QE3QU4'
             }
         ] as Reservation[]);
 
-        const result = await aggregateReservations();
+        const result = await aggregateReservations(new Date('2025-01-01T00:00:00Z'));
 
         const jcal = ICAL.Component.fromString(result);
         const events = jcal.getAllSubcomponents('vevent');
@@ -56,9 +58,9 @@ describe('Facilitron Feeds', () => {
         assert.equal(events[16].getFirstPropertyValue('description'),
             "Milwaukie High School - Lake Road Varsity Turf Baseball Field/Soccer Field for Soccer reserved by Doe on Jun 7\n" +
             "https://www.facilitron.com/icalendar/reservation/HRK7KAAUHE9H");
-        assert.equal(events[0].getFirstPropertyValue('dtstart')?.toString(), '2025-01-25T16:00:00Z');
-        assert.equal(events[1].getFirstPropertyValue('dtstart')?.toString(), '2025-01-26T16:00:00Z');
-        assert.equal(events[16].getFirstPropertyValue('dtstart')?.toString(), '2025-03-20T01:00:00Z');
+        assert.equal(events[0].getFirstPropertyValue('dtstart')?.toString(), '2025-01-25T09:00:00');
+        assert.equal(events[1].getFirstPropertyValue('dtstart')?.toString(), '2025-01-26T09:00:00');
+        assert.equal(events[16].getFirstPropertyValue('dtstart')?.toString(), '2025-03-19T18:00:00');
 
     });
 });

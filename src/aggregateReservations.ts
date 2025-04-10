@@ -15,12 +15,13 @@ export default async function aggregateReservations(startDate: Date = new Date()
     calendar.addPropertyWithValue('X-WR-CALNAME', 'Facilitron Reservations Calendar');
     calendar.addPropertyWithValue('X-WR-CALDESC', 'Combined events across a set of Facilitron reservations');
 
-    const reservations = await fetchReservations();
-    reservations.filter(reservation => {
-        reservation.last_date > startDate &&
-        (locations.length == 0 || locations.some(location => reservation.owner.name.includes(location)));
-    })
-    const feedPromises = downloadFeeds(reservations).map(async (feedPromise) => {
+    const allReservations = await fetchReservations();
+    const filteredReservations = allReservations.filter(reservation => {
+        return reservation.last_date.getTime() > startDate.getTime() &&
+            (locations.length === 0 || locations.some(location => reservation.owner.name.includes(location)));
+    });
+
+    const feedPromises = downloadFeeds(filteredReservations).map(async (feedPromise) => {
         const feed = await feedPromise;
         return feed && rebuildEvents(feed);
     });
@@ -33,8 +34,9 @@ export default async function aggregateReservations(startDate: Date = new Date()
         return aStart.toUnixTime() - bStart.toUnixTime();
     })
     for (const event of sortedEvents) {
-        calendar.addSubcomponent(event);
+        if ((event.getFirstPropertyValue('dtstart') as ICAL.Time).toJSDate().getTime() >= startDate.getTime()) {
+            calendar.addSubcomponent(event);
+        }
     }
     return calendar.toString();
 }
-
