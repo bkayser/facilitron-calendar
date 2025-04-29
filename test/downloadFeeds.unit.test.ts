@@ -17,6 +17,7 @@ describe('downloadFeeds', () => {
         last_date: new Date('2021-06-07T15:57:56.312Z'),
         event_name: 'Event 1',
         total: 100,
+        status: 1,
         renter: { last_name: 'Doe' },
         owner: { name: 'NCSD' },
         url: 'https://example.com/icalendar/reservation/1',
@@ -32,6 +33,7 @@ describe('downloadFeeds', () => {
         renter: { last_name: 'Doe' },
         owner: { name: 'NCSD' },
         total: 200,
+        status: 1,
         url: 'https://example.com/icalendar/reservation/2',
         icalFeed: 'https://example.com/icalendar/reservation/2'
     };

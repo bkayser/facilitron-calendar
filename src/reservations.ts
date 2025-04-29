@@ -23,6 +23,7 @@ type ReservationPayload = {
     approved_date: Date; // ISO date string
     created: Date; // ISO date string
     last_date: Date;
+    status: number; // Status of the reservation
     event_name?: string; // Name of the event
     renter: { last_name: string };
     owner: { name: string; };
@@ -112,11 +113,17 @@ export default async function fetchReservations(): Promise<Reservations> {
         throw new Error('Failed to fetch reservations: Reservations data is not an array');
     }
     return reservationsResponse.data.reservations.map((reservationObj: ReservationPayload) => {
-        return { ...reservationObj,
+
+        return {
+            ...reservationObj,
             // Construct the reservation URL based on the reservation ID or other logic
             approved_date: new Date(reservationObj.approved_date),
             created: new Date(reservationObj.created),
             last_date: new Date(reservationObj.last_date),
+            // declined: 4
+            // approved: 1
+            // canceled: 2
+            status: reservationObj.status,
             url: `https://www.facilitron.com/dashboard/reservation/${reservationObj._id.toUpperCase()}`,
             icalFeed: `https://www.facilitron.com/icalendar/reservation/${reservationObj._id}`
         } as Reservation;
