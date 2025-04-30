@@ -52,7 +52,19 @@ export default function rebuildEvents(feed: Feed): ICAL.Component[] {
         event.addPropertyWithValue('dtstart', startTimeLocal.convertToZone(pacificTimeZone));
         event.addPropertyWithValue('dtend', endTimeLocal.convertToZone(pacificTimeZone));
         if (feed.reservation.status == 2 || feed.reservation.status == 4) {
-            event.addPropertyWithValue('STATUS', 'CANCELLED');
+            event.addPropertyWithValue('status', 'CANCELLED');
+            event.removeProperty('sequence');
+            event.addPropertyWithValue('sequence', 3);
+        }
+        if (feed.reservation.status == 0) {
+            event.addPropertyWithValue('status', 'TENTATIVE');
+            event.removeProperty('sequence');
+            event.addPropertyWithValue('sequence', 1);
+        }
+        if (feed.reservation.status == 1) {
+            event.addPropertyWithValue('status', 'CONFIRMED');
+            event.removeProperty('sequence');
+            event.addPropertyWithValue('sequence', 2);
         }
         return event;
     });
